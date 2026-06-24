@@ -131,3 +131,40 @@ export async function fetchEnrollmentData() {
 
   return Array.isArray(result.data) ? result.data : [];
 }
+
+export async function updateEnrollmentStatus(rowNumber, status) {
+  if (!WEB_APP_URL) {
+    throw new Error('Missing VITE_GOOGLE_SCRIPT_URL');
+  }
+
+  const payload = {
+    action: 'updateStatus',
+    rowNumber: rowNumber,
+    status: status,
+  };
+
+  console.log('[Enrollment Debug] update request URL:', WEB_APP_URL);
+  console.log('[Enrollment Debug] update payload:', payload);
+
+  const response = await fetch(WEB_APP_URL, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+
+  const text = await response.text();
+  console.log('[Enrollment Debug] update response status:', response.status);
+  console.log('[Enrollment Debug] update response body:', text);
+
+  let result;
+  try {
+    result = text ? JSON.parse(text) : {};
+  } catch {
+    throw new Error(`Google Sheets status update failed with HTTP ${response.status}: ${text || 'Empty response body'}`);
+  }
+
+  if (!response.ok || result.success !== true) {
+    throw new Error(getErrorMessage(result) || `Google Sheets status update failed with HTTP ${response.status}: ${text || 'Empty response body'}`);
+  }
+
+  return result;
+}

@@ -16,6 +16,33 @@ const HEADERS = [
 function doPost(e) {
   try {
     const payload = JSON.parse((e.postData && e.postData.contents) || '{}');
+    
+    // Check if this is an update status action
+    if (payload.action === 'updateStatus') {
+      const rowNumber = parseInt(payload.rowNumber, 10);
+      const status = payload.status;
+      if (!rowNumber || !status) {
+        throw new Error('Missing rowNumber or status');
+      }
+
+      const sheet = getEnrollmentSheet_();
+      const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+      const statusIndex = headers.indexOf('Status');
+      if (statusIndex === -1) {
+        throw new Error('Status column not found in sheet headers');
+      }
+
+      // Update the cell value at rowNumber (1-indexed spreadsheet row) and statusIndex + 1 (1-indexed column)
+      sheet.getRange(rowNumber, statusIndex + 1).setValue(status);
+      SpreadsheetApp.flush();
+
+      return json_({
+        success: true,
+        message: 'Status updated to ' + status + ' for row ' + rowNumber,
+      });
+    }
+
+    // Default: Add new enrollment
     const requiredFields = ['fullName', 'phone', 'course'];
     const missing = requiredFields.filter(function (field) {
       return !String(payload[field] || '').trim();

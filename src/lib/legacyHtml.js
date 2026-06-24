@@ -1,6 +1,6 @@
 import originalHtml from '../../legacy.html?raw';
 
-export const legacyStyle = originalHtml.match(/<style>([\s\S]*?)<\/style>/)?.[1] ?? '';
+export const legacyStyle = (originalHtml.match(/<style>([\s\S]*?)<\/style>/)?.[1] ?? '') + '\n.status-lost{background:#ffebee;color:#c62828;}';
 export const legacyBody = originalHtml.match(/<body[^>]*>([\s\S]*?)<script>/)?.[1] ?? '';
 
 export function between(start, end) {

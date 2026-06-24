@@ -32,6 +32,7 @@ function mapEnrollmentRow(row) {
   const parsedMessage = parseMessage(row.Message || '');
   return {
     id: row.rowNumber ? `ENR-${String(row.rowNumber).padStart(4, '0')}` : row.Timestamp || '',
+    rowNumber: row.rowNumber,
     name: row['Full Name'] || '',
     dob: parsedMessage.dob || '',
     gender: parsedMessage.gender || '',
